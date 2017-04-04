@@ -3,6 +3,8 @@
 ACCOUNTNUM=${1}
 INTERNETCODE=${2}
 
+BASICAUTH=$(echo -n ${ACCOUNTNUM}:${INTERNETCODE}|base64)
+
 TEMPFILEPREFIX=/tmp/$(date +%s%N|sha256sum|awk '{print $1}')
 
 {
@@ -24,4 +26,18 @@ TEMPFILEPREFIX=/tmp/$(date +%s%N|sha256sum|awk '{print $1}')
 AUTH=$(cat ${TEMPFILEPREFIX}.auth | python -mjson.tool | grep "\"auth\": " | cut -d"\"" -f4)
 rm -f ${TEMPFILEPREFIX}.auth
 
-echo ${AUTH}
+{
+    curl "https://mit.eniig.dk/Core/Customer/GetCustomers/?username=${ACCOUNTNUM}@eniig.dk" \
+	 -H 'Accept-Encoding: gzip, deflate, sdch, br' \
+	 -H 'Accept-Language: en-US,en;q=0.8,da;q=0.6' \
+	 -H "Authorization: ${AUTH}" \
+	 -H 'Accept: application/json, text/plain, */*' \
+	 -H 'Referer: https://mit.eniig.dk/' \
+	 -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.74 Safari/537.36' \
+	 -H 'Connection: keep-alive' \
+	 -H "Authentication: Basic ${BASICAUTH}" \
+	 --compressed \
+	 --silent
+} > ${TEMPFILEPREFIX}.customer
+
+cat ${TEMPFILEPREFIX}.customer
