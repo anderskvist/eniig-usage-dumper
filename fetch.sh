@@ -7,6 +7,10 @@ BASICAUTH=$(echo -n ${ACCOUNTNUM}:${INTERNETCODE}|base64)
 
 TEMPFILEPREFIX=/tmp/$(date +%s%N|sha256sum|awk '{print $1}')
 
+function get_variable () {
+    cat - | sed 's/,/\n/g' | grep ${1} | cut -d":" -f2 | sed 's/\"//g'
+}
+
 {
     curl 'https://mit.eniig.dk/Core/Login/Authenticate' \
 	 -H 'Origin: https://mit.eniig.dk' \
@@ -23,7 +27,7 @@ TEMPFILEPREFIX=/tmp/$(date +%s%N|sha256sum|awk '{print $1}')
 	 --silent
 } > ${TEMPFILEPREFIX}.auth
 
-AUTH=$(cat ${TEMPFILEPREFIX}.auth | python -mjson.tool | grep "\"auth\": " | cut -d"\"" -f4)
+AUTH=$(cat ${TEMPFILEPREFIX}.auth | get_variable auth)
 rm -f ${TEMPFILEPREFIX}.auth
 
 {
@@ -40,4 +44,7 @@ rm -f ${TEMPFILEPREFIX}.auth
 	 --silent
 } > ${TEMPFILEPREFIX}.customer
 
-cat ${TEMPFILEPREFIX}.customer
+PERM=$(cat ${TEMPFILEPREFIX}.customer | get_variable permissionId)
+rm -f ${TEMPFILEPREFIX}.customer
+
+echo ${PERM}
