@@ -60,4 +60,4 @@ rm -f ${TEMPFILEPREFIX}.customer
 	 -H 'Connection: keep-alive' \
 	 --compressed \
 	 --silent
-} | python -mjson.tool
+}
