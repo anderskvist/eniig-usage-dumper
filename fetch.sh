@@ -2,6 +2,8 @@
 
 ACCOUNTNUM=${1}
 INTERNETCODE=${2}
+METERINGPOINT=${3}
+DATE=${4}
 
 BASICAUTH=$(echo -n ${ACCOUNTNUM}:${INTERNETCODE}|base64)
 
@@ -47,4 +49,14 @@ rm -f ${TEMPFILEPREFIX}.auth
 PERM=$(cat ${TEMPFILEPREFIX}.customer | get_variable permissionId)
 rm -f ${TEMPFILEPREFIX}.customer
 
-echo ${PERM}
+{
+    curl "https://mit.eniig.dk/Core/Consumption/GetConsumptionByMeteringPoint/?meteringPoint=${METERINGPOINT}&permissionId=${PERM}&selectedPeriod=${DATE}&timeResolution=1" \
+	 -H 'Accept-Encoding: gzip, deflate, sdch, br' \
+	 -H 'Accept-Language: en-US,en;q=0.8,da;q=0.6' \
+	 -H "Authorization: ${AUTH}" \
+	 -H 'Accept: application/json, text/plain, */*' \
+	 -H 'Referer: https://mit.eniig.dk/' \
+	 -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.74 Safari/537.36' \
+	 -H 'Connection: keep-alive' \
+	 --compressed
+} | python -mjson.tool
