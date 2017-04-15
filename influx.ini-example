@@ -1,0 +1,4 @@
+[influx]
+url = "https://url.to.influx.db/write?db=[database_name]"
+user = "username"
+pass = "password"
