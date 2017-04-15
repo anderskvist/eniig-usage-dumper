@@ -3,11 +3,13 @@
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
-$config = parse_ini_file(
-			 dirname(__FILE__) . 
-			 DIRECTORY_SEPARATOR . 
-			 "influx.ini"
-			 );
+$configfile = dirname(__FILE__) . DIRECTORY_SEPARATOR . "influx.ini";
+
+if (!file_exists($configfile)) {
+  die("Missing influx.ini" . PHP_EOL);
+}
+
+$config = parse_ini_file($configfile);
 
 $date = $argv[1];
 
