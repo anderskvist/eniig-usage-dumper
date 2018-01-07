@@ -16,10 +16,10 @@ $date = $argv[1];
 $json = file_get_contents("php://stdin");
 $data = json_decode($json);
 
-foreach ($data->usage as $d) {
+foreach ($data->timeSeriesCollections as $d) {
   
   $hour = $d->title;
-  $kwh = $d->usage0;
+  $kwh = $d->tsData[1]->usage;
 
   $influx = sprintf("kWh value=%f %d", $kwh, strtotime($date . $hour . ":00:00") . "000000000");
 
