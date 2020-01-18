@@ -49,8 +49,21 @@ rm -f ${TEMPFILEPREFIX}.auth
 PERM=$(cat ${TEMPFILEPREFIX}.customer | get_variable permissionId)
 rm -f ${TEMPFILEPREFIX}.customer
 
+
+
 {
-    curl "https://mit.eniig.dk/Core/Consumption/GetConsumptionByMeteringPoint/?meteringPoint=${METERINGPOINT}&permissionId=${PERM}&selectedPeriod=${DATE}&timeResolution=1" \
+    curl "https://mit.eniig.dk/Core/Consumption/GetMeteringPoints/?permissionId=${PERM}" \
+	-H 'Accept-Encoding: gzip, deflate, br' \
+	-H 'Accept-Language: en-US,en;q=0.9,da-DK;q=0.8,da;q=0.7' \
+	-H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36' \
+	-H 'Accept: application/json, text/plain, */*' \
+	-H "Authorization: ${AUTH}" \
+	-H 'Connection: keep-alive' \
+	--compressed
+} > ${TEMPFILEPREFIX}.meteringpoints
+
+{
+    curl "https://mit.eniig.dk/Core/Consumption/GetConsumptionByMeteringPoint/?consumerNumber=6&meteringPoint=${METERINGPOINT}&permissionId=${PERM}&selectedPeriod=${DATE}&timeResolution=1" \
 	 -H 'Accept-Encoding: gzip, deflate, sdch, br' \
 	 -H 'Accept-Language: en-US,en;q=0.8,da;q=0.6' \
 	 -H "Authorization: ${AUTH}" \
